@@ -15,7 +15,7 @@ PangLeetCode
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption:
 
    docs/sort/test
    docs/sort/leetcode_15_三数和
