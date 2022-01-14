@@ -35,13 +35,31 @@
 
 ## 解题思路
 
-题目要求找到三个数a，b，c，且满足`a + b + c = 0`。比较直观的思路就是：使用三层循环找到所有三元组的组合，判断每个三元组是否满足条件，找到所有三元组和等于0的目标即可，但是不幸的是，这样的算法会超时，因为三层循环的时间负责度O(n^3)。
+题目要求找到三个数a，b，c，且满足`a + b + c = 0`。比较直观的思路就是：使用三层循环找到所有三元组的组合，判断每个三元组是否满足条件，找到所有三元组和等于0的目标即可，但是不幸的是，这样的算法会超时，因为三层循环的时间负责度O(n^3)，题目中给的数组最大长度是3000，O(n^3)肯定过不了，O(n^2)时间复杂度大概率是能够通过的。
+
+我们对题目进行变化，如果a固定的情况下，目前就是找到两个数的和等于-a即可。之前我们都做过类似的题目：[两数之和](https://leetcode-cn.com/problems/two-sum/)。如果题目不要求找到所有的三元组组合，我们就可以是使用hash表来计算两数之和，时间复杂度是O(n)，再算上外层的循环O(n)，时间复杂度是O(n^2)。
+
+如果数组是**有序**的计算两个之和不使用hash表，也能在O(n)的时间复杂度完成，使用双指针从两端向中间探测。
 
 
+因此三数和问题被我们拆分成两个部分：
+
+1. 固定一个a，问题变成再数组中找到`b + c = -a`的两数之和问题。
+2. 两数之和问题，我们先对数组排序，再使用双指针两头向中间探测，解决两数之和问题。
+3. 总结：先排序，固定a，使用双指针解两数之和等于-a的问题。
+
+使用快速排序将整数数据有序，之后固定a，使用使用双指针解两数之和等于-a的二元组。使用两个指针left和right，有三种种情况：
+
+1. `nums[left] + nums[right] < -a` --> `left = left + 1`
+2. `nums[left] + nums[right] > -a` --> `right = right - 1`
+2. `nums[left] + nums[right] = -a`；保存 `<left, right>`，`left = left + 1, right = right - 1`
 
 ## 难点分析
-本题的难点在于如何去除重复解。
+本题的难点在于如何在得到所有解的同时，且不包含重复解。如果去重重复解，目标是相等的数值使用一次，因此已经排序。对于第一层循环，如果`num[i] = nums[i-1]`，则跳过，因为`nums[i-1]`的时候已经使用过了，不在重试使用。
 
+第二个可能重复的地方是，当计算两数之和的时候，如果`nums[left] = nums[left-1]`同理也要跳过。
+
+留一个问题：为什么right不用跳过相等？
 
 
 ## 代码
@@ -57,23 +75,23 @@ public:
         sort(nums.begin(), nums.end());
         // 最关键的是如何去重
         for (int i = 0; i <= nums.size()-3; i++) {
+            // 重复的数字值使用一次
             if (i > 0 && nums[i] == nums[i-1]) {
                 continue;
             }
             int left = i + 1;
             int right = nums.size() - 1;
             while (left < right) {
+                // 重复数字只使用一次，因为nums[left]+nums[right]=-a,因此left跳过相当于right跳过
                 if (left > i + 1 && nums[left] == nums[left-1]) {
                     left ++;
                     continue;
                 }
                 if (nums[i] + nums[left] + nums[right] < 0) {
                     left ++;
-                }
-                else if (nums[i] + nums[left] + nums[right] > 0){
+                } else if (nums[i] + nums[left] + nums[right] > 0){
                     right --;
-                }
-                else { // ==
+                } else { 
                     ans.push_back({nums[i], nums[left], nums[right]});
                     left ++;
                     right --;
@@ -89,33 +107,29 @@ public:
 ```Python
 class Solution:
     def threeSum(self, nums: List[int]) -> List[List[int]]:
-        n = len(nums)
+        if len(nums) < 3:
+            return []
         nums.sort()
-        ans = list()
-        
-        # 枚举 a
-        for first in range(n):
-            # 需要和上一次枚举的数不相同
-            if first > 0 and nums[first] == nums[first - 1]:
+        # print(nums)
+        ans = []
+        for i in range(len(nums)):
+            if i > 0 and nums[i] == nums[i-1]:
                 continue
-            # c 对应的指针初始指向数组的最右端
-            third = n - 1
-            target = -nums[first]
-            # 枚举 b
-            for second in range(first + 1, n):
-                # 需要和上一次枚举的数不相同
-                if second > first + 1 and nums[second] == nums[second - 1]:
+            a = nums[i]
+            left = i + 1
+            right = len(nums) - 1
+            while left < right:
+                if left > i + 1 and nums[left] == nums[left - 1]:
+                    left += 1
                     continue
-                # 需要保证 b 的指针在 c 的指针的左侧
-                while second < third and nums[second] + nums[third] > target:
-                    third -= 1
-                # 如果指针重合，随着 b 后续的增加
-                # 就不会有满足 a+b+c=0 并且 b<c 的 c 了，可以退出循环
-                if second == third:
-                    break
-                if nums[second] + nums[third] == target:
-                    ans.append([nums[first], nums[second], nums[third]])
-        
+                if nums[left] + nums[right] < -a:
+                    left += 1
+                elif nums[left] + nums[right] > -a:
+                    right -= 1
+                else:
+                    ans.append([a, nums[left], nums[right]])
+                    left += 1
+                    right -= 1
         return ans
 ```
 
