@@ -16,7 +16,7 @@ PangLeetCode
 .. toctree::
    :maxdepth: 2
 
-   docs/sort/
+   docs/sort/index
 
 
 来源
