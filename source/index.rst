@@ -14,11 +14,9 @@ PangLeetCode
 ====================
 
 .. toctree::
-   :maxdepth: 1
-   :caption:
+   :maxdepth: 2
 
-   docs/sort/test
-   docs/sort/leetcode_15_三数和
+   docs/sort/
 
 
 来源
