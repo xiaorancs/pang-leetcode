@@ -3,6 +3,7 @@
  
 .. toctree::
     :maxdepth: 1
-    
+
     leetcode_15_三数和
     leetcode_16_最接近的三数和
+    leetcode_147_对链表进行插入排序
