@@ -17,7 +17,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'FatLeetCode'
+project = 'PangLeetCode'
 copyright = '2022, xiaoran'
 author = 'xiaoran'
 
