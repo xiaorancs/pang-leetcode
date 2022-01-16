@@ -23,7 +23,38 @@
 
 **C++ Code**
 ```C++
-
+class Solution {
+public:
+    vector<int> largestDivisibleSubset(vector<int>& nums) {
+        // 排序
+        sort(nums.begin(), nums.end());
+        int ans = 0;
+        int index = -1;
+        vector<int> dp(nums.size(), 0);
+        vector<int> father(nums.size(), -1);
+        for (int i = 0; i < nums.size(); i++) {
+            dp[i] = 1;
+            for (int j = 0; j < i; j++) {
+                if (nums[i] % nums[j] == 0 && dp[i] < dp[j] + 1) {
+                    dp[i] = dp[j] + 1;
+                    // 记录i来自哪个状态
+                    father[i] = j;
+                }
+            }
+            if (ans < dp[i]) {
+                index = i;
+                ans = dp[i];
+            }
+        }
+        // cout << index << " " << ans;
+        vector<int> result;
+        while (index != -1) {
+            result.push_back(nums[index]);
+            index = father[index];
+        }
+        return result;
+    }
+};
 ```
 
 **Python Code**
@@ -32,8 +63,6 @@
 ```
 
 ## 复杂度
-- 时间复杂度：
-- 空间复杂度：
 
 
 ## PangLeetCode
